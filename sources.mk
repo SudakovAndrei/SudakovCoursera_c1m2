@@ -1,5 +1,5 @@
 #******************************************************************************
-# Copyright (C) 2017 by Alex Fosdick - University of Colorado
+# Copyright (C) 2018 by Sudakov Andrei - AO PKK MILANDR
 #
 # Redistribution, modification or use of this software in source or binary
 # forms is permitted as long as the files maintain this copyright. Users are 
@@ -10,8 +10,19 @@
 #*****************************************************************************
 
 # Add your Source files to this variable
-SOURCES =
+ifeq ($(PLATFORM),MSP432)
+SOURCES=	main.c \
+		memory.c \
+		interrupts_msp432p401r_gcc.c \
+		startup_msp432p401r_gcc.c \
+		system_msp432p401r.c
+else
+SOURCES = main.c \
+	  memory.c
+endif
 
 # Add your include paths to this variable
-INCLUDES = 
+INCLUDES=	-I${PROJECT_HOME}/include/CMSIS \
+		-I${PROJECT_HOME}/include/msp432 \
+		-I${PROJECT_HOME}/include/common
 
