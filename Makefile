@@ -68,7 +68,9 @@ ASMS = $(SOURCES:.c=.asm)
 
 %.asm : %.c
 	$(CC) -S $(CFLAGS) $(CPPFLAGs) $(INCLUDES) -o $@ $<
-	objdump -d $(BASENAME).out >> $(BASENAME).asm
+
+$(BASENAME).asm: $(BASENAME).out
+	objdump -d $< >$@
 
 .PHONY: compile-all
 compile-all:
