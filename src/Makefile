@@ -28,6 +28,8 @@
 #	PLATFORM - Type of platform (HOST - native, MSP432 - MCU)
 #
 #------------------------------------------------------------------------------
+PLATFORM = HOST
+
 include sources.mk
 BASENAME = c1m2
 
@@ -38,7 +40,13 @@ SPECS = nosys.specs
 LINKER_FILE = ../msp432p401r.lds
 
 # Compiler Flags and Defines
-ifeq ($(PLATFORM),MSP432)
+ifeq ($(PLATFORM),HOST)
+	CC=	gcc
+	CFLAGS=	-Wall -Werror -g -O0 -std=c99
+	LDFLAGS= -Wl,-Map=$(BASENAME).map
+	SIZE= size
+	OBJDUMP=objdump
+else ifeq ($(PLATFORM),MSP432)
 	CC=	arm-none-eabi-gcc
 	CFLAGS=	-Wall -Werror -g -O0 -std=c99 \
 		-mcpu=$(CPU) -m$(ARCH) --specs=$(SPECS) \
@@ -47,14 +55,11 @@ ifeq ($(PLATFORM),MSP432)
 	SIZE= arm-none-eabi-size
 	OBJDUMP=arm-none-eabi-objdump
 else
-	CC=	gcc
-	CFLAGS=	-Wall -Werror -g -O0 -std=c99
-	LDFLAGS= -Wl,-Map=$(BASENAME).map
-	SIZE= size
-	OBJDUMP=objdump
-endif 
+  	$(error Unsupported platform: $(PLATFORM))
+endif
+ 
 LD= arm-none-eabi-ld
-CPPFLAGs= -D$(PLATFORM)
+CPPFLAGs= -MD -D$(PLATFORM)
 
 OBJS = $(SOURCES:.c=.o)
 PREPS = $(SOURCES:.c=.i)
@@ -64,10 +69,10 @@ ASMS = $(SOURCES:.c=.asm)
 	$(CC) -c $< $(CFLAGS) $(CPPFLAGs) $(INCLUDES) -o $@
 
 %.i : %.c
-	$(CC) -E $(CFLAGS) $(CPPFLAGs) $(INCLUDES) -o $@ $<
+	$(CC) -E $(CPPFLAGs) $(INCLUDES) -o $@ $<
 
 %.asm : %.c
-	$(CC) -S $(CPPFLAGs) $(INCLUDES) -o $@ $<
+	$(CC) -S $(CFLAGS) $(CPPFLAGs) $(INCLUDES) -o $@ $<
 
 $(BASENAME).asm: $(BASENAME).out
 	$(OBJDUMP) -d $< >$@

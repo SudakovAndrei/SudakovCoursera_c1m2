@@ -8,21 +8,20 @@
 # misuse of this material. 
 #
 #*****************************************************************************
-
-# Add your Source files to this variable
-ifeq ($(PLATFORM),MSP432)
+ifeq ($(PLATFORM),HOST)
+SOURCES = 	main.c \
+	  	memory.c
+INCLUDES=	-I../include/common
+else ifeq ($(PLATFORM),MSP432)
 SOURCES=	main.c \
 		memory.c \
 		interrupts_msp432p401r_gcc.c \
 		startup_msp432p401r_gcc.c \
 		system_msp432p401r.c
-else
-SOURCES = main.c \
-	  memory.c
-endif
-
-# Add your include paths to this variable
 INCLUDES=	-I../include/CMSIS \
 		-I../include/msp432 \
 		-I../include/common
+else
+  $(error Unsupported platform: $(PLATFORM))
+endif
 
